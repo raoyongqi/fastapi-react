@@ -1,48 +1,50 @@
+# main.py
+
 from fastapi import FastAPI, HTTPException
 from typing import List
 from pydantic import BaseModel
-from typing import Optional
+from starlette.middleware.cors import CORSMiddleware
+from models import Memo
 
 app = FastAPI()
 
-class Memo(BaseModel):
-    id: int
-    title: str
-    content: Optional[str] = None
+# 跨域配置，允许所有来源访问
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-# 存储备忘录的“数据库”
+# 模拟存储备忘录的列表
 memos = []
 
+# 创建备忘录
 @app.post("/memos/", response_model=Memo)
 def create_memo(memo: Memo):
-    if any(existing_memo.id == memo.id for existing_memo in memos):
-        raise HTTPException(status_code=400, detail="Memo with this ID already exists")
     memos.append(memo)
     return memo
 
+# 获取所有备忘录
 @app.get("/memos/", response_model=List[Memo])
 def read_memos():
     return memos
 
-@app.get("/memos/{memo_id}", response_model=Memo)
-def read_memo(memo_id: int):
-    for memo in memos:
-        if memo.id == memo_id:
-            return memo
-    raise HTTPException(status_code=404, detail="Memo not found")
-
+# 更新备忘录
 @app.put("/memos/{memo_id}", response_model=Memo)
-def update_memo(memo_id: int, updated_memo: Memo):
-    for i, memo in enumerate(memos):
-        if memo.id == memo_id:
-            memos[i] = updated_memo
-            return updated_memo
+def update_memo(memo_id: int, memo: Memo):
+    for m in memos:
+        if m.id == memo_id:
+            m.title = memo.title
+            m.content = memo.content
+            return m
     raise HTTPException(status_code=404, detail="Memo not found")
 
-@app.delete("/memos/{memo_id}")
+# 删除备忘录
+@app.delete("/memos/{memo_id}", response_model=Memo)
 def delete_memo(memo_id: int):
-    for i, memo in enumerate(memos):
-        if memo.id == memo_id:
-            del memos[i]
-            return {"message": "Memo deleted successfully"}
+    for i, m in enumerate(memos):
+        if m.id == memo_id:
+            return memos.pop(i)
     raise HTTPException(status_code=404, detail="Memo not found")
