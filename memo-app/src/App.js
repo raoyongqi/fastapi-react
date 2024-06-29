@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
+import './App.css';
 function App() {
   const [memos, setMemos] = useState([]);
   const [newMemo, setNewMemo] = useState({ id: 0, title: '', content: '' });
@@ -31,13 +31,14 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <h1>Memo App</h1>
-      <div>
-        <h2>Create Memo</h2>
+    <div className="container">
+      <h1 className="header">Memo App</h1>
+      <div className="form-group">
+        <h2 className="sub-header">Create Memo</h2>
         <input
           type="text"
           value={newMemo.title}
+          className=''
           onChange={(e) => setNewMemo({ ...newMemo, title: e.target.value })}
           placeholder="Title"
         />
@@ -46,10 +47,10 @@ function App() {
           onChange={(e) => setNewMemo({ ...newMemo, content: e.target.value })}
           placeholder="Content"
         />
-        <button onClick={handleCreateMemo}>Create Memo</button>
+        <button className="button" onClick={handleCreateMemo}>Create Memo</button>
       </div>
       <div>
-        <h2>Memo List</h2>
+        <h2 className="sub-header">Memo List</h2>
         <ul>
           {memos.map((memo) => (
             <li key={memo.id}>
