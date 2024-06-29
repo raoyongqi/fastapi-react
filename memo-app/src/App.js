@@ -1,8 +1,7 @@
-// src/App.js
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
+
 function App() {
   const [memos, setMemos] = useState([]);
   const [newMemo, setNewMemo] = useState({ id: 0, title: '', content: '' });
@@ -30,6 +29,15 @@ function App() {
     }
   };
 
+  const handleDeleteMemo = async (id) => {
+    try {
+      await axios.delete(`http://127.0.0.1:8000/memos/${id}`);
+      fetchMemos();  // Update memo list
+    } catch (error) {
+      console.error('Failed to delete memo: ', error);
+    }
+  };
+
   return (
     <div className="container">
       <h1 className="header">Memo App</h1>
@@ -54,8 +62,11 @@ function App() {
         <ul>
           {memos.map((memo) => (
             <li key={memo.id}>
-              <h3>{memo.title}</h3>
-              <p>{memo.content}</p>
+              <div className="memo-item">
+                <h3>{memo.title}</h3>
+                <p>{memo.content}</p>
+                <button className="delete-button" onClick={() => handleDeleteMemo(memo.id)}>Delete</button>
+              </div>
             </li>
           ))}
         </ul>
